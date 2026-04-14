@@ -1,0 +1,85 @@
+<div class="cs-panel">
+
+  <!-- Header bar -->
+  <div class="cs-panel-header">
+    <span class="cs-header-icon">💬</span>
+    <span class="cs-header-title">Discussion</span>
+    <span class="cs-comment-count">{{ comments.length }} comment{{ comments.length !== 1 ? 's' : '' }}</span>
+    <button
+      class="cs-refresh-btn"
+      (click)="fetchComments()"
+      title="Refresh comments"
+      [disabled]="loading"
+    >
+      {{ loading ? '⏳' : '🔄' }}
+    </button>
+  </div>
+
+  <!-- Global error -->
+  <div *ngIf="error" class="cs-error-banner">
+    <span>⚠️ {{ error }}</span>
+    <button (click)="fetchComments()" class="cs-retry-btn">Retry</button>
+  </div>
+
+  <!-- Comment list -->
+  <div class="cs-list" #listEndRef>
+    <div *ngIf="loading && comments.length === 0" class="cs-loading">
+      <div class="cs-spinner"></div>
+      <p>Loading comments…</p>
+    </div>
+
+    <div *ngIf="!loading && comments.length === 0" class="cs-empty">
+      <div class="cs-empty-icon">🗨️</div>
+      <p>No comments yet. Be the first to start the discussion!</p>
+    </div>
+
+    <div *ngFor="let c of comments" class="cs-comment-card">
+      <div
+        class="cs-avatar"
+        [style.background]="getAvatarColor(c.userName)"
+      >
+        {{ getInitial(c.userName) }}
+      </div>
+      <div class="cs-comment-body">
+        <div class="cs-comment-meta">
+          <span class="cs-comment-author">{{ c.userName }}</span>
+          <span class="cs-comment-time">{{ getTimeAgo(c.createdAt) }}</span>
+        </div>
+        <p class="cs-comment-text">{{ c.text }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Composer -->
+  <form class="cs-composer" (ngSubmit)="handleSubmit()" novalidate>
+    <div *ngIf="inputError" class="cs-input-error">⚠️ {{ inputError }}</div>
+
+    <div class="cs-composer-row cs-composer-main">
+      <textarea
+        class="cs-input cs-textarea"
+        placeholder="Write a comment…"
+        [(ngModel)]="newComment"
+        name="newComment"
+        rows="3"
+        maxlength="1000"
+        (input)="inputError = ''"
+      ></textarea>
+    </div>
+    <div class="cs-composer-row cs-composer-footer">
+      <span class="cs-char-count">{{ newComment.length }}/1000</span>
+      <button
+        type="submit"
+        class="cs-submit-btn"
+        [disabled]="posting"
+      >
+        <ng-container *ngIf="posting; else notPosting">
+          <span class="cs-btn-spinner"></span> Posting…
+        </ng-container>
+        <ng-template #notPosting>
+          <span>✉️</span> Post Comment
+        </ng-template>
+      </button>
+    </div>
+  </form>
+
+</div>

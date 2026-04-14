@@ -1,0 +1,218 @@
+[
+  {
+    "_id": "69ac03ae6bfdf993f6e5d0a7",
+    "fullName": "student",
+    "email": "student1@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69ac04096bfdf993f6e5d0ad",
+    "fullName": "shalini",
+    "email": "shalini1@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69ac182a1d5d6ab159a8eb63",
+    "fullName": "SampleAdmin",
+    "email": "SampleAdmin@gmail.com",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69adc1eda075a3724783a968",
+    "fullName": "TestStudent",
+    "email": "TestStudent@clg.edu.in",
+    "role": "student"
+  },
+  {
+    "_id": "69add284450b69526c974ba8",
+    "fullName": "SuperAdmin",
+    "email": "SuperAdmin@gmail.com",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69af2bce44ff8c96f311e281",
+    "fullName": "mahi",
+    "email": "mahi@gmail.com",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69af2d2644ff8c96f311e286",
+    "fullName": "mohan",
+    "email": "mohan@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69af371758b4c0751b9dd1b3",
+    "fullName": "monish",
+    "email": "monish@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69af376058b4c0751b9dd1ba",
+    "fullName": "mani",
+    "email": "mani@gmail.com",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69afe16ef7da88f15637d66d",
+    "fullName": "shalini",
+    "email": "shalini@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69afe2d6f7da88f15637d677",
+    "fullName": "sandhiya",
+    "email": "sandhiya@gmail.com",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69b1343af30f80f69efcfee5",
+    "fullName": "shalu",
+    "email": "shalu@gmail.com",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69b1a344e93396a67ce3ce77",
+    "fullName": "Student",
+    "email": "teststudent1@abc.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b1b32e3337615c5f844bda",
+    "fullName": "Gopal",
+    "email": "gopal@gmail.com",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69b1c63ab6edd072f46f12a7",
+    "fullName": "madhu",
+    "email": "madhu@gmail.com",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69b32cc7a5130e1e92159f71",
+    "fullName": "Test User",
+    "email": "test@example.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b33cb8ddd123938dd18756",
+    "fullName": "API Test User",
+    "email": "apitest1773354168537@test.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b33d94ddd123938dd1875a",
+    "fullName": "Test Student",
+    "email": "student1773354388380@test.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b2a050c76a9d024222404c",
+    "fullName": "Tester",
+    "email": "tester@test.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b2a3b468da81d05f56b4d3",
+    "fullName": "sri",
+    "email": "sri@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b49c7a59213b12289a870c",
+    "fullName": "Debug User",
+    "email": "debug1773444218588@test.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b49cce59213b12289a8710",
+    "fullName": "Test User",
+    "email": "testuser1773444302817@example.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b49d2059213b12289a8714",
+    "fullName": "Test Student",
+    "email": "student1773444383948@college.edu",
+    "role": "student"
+  },
+  {
+    "_id": "69b4b699e4df6c5e96ae2509",
+    "fullName": "Riya P",
+    "email": "riyaa123@students.edu",
+    "role": "student"
+  },
+  {
+    "_id": "69b4cdf4e4df6c5e96ae252b",
+    "fullName": "Rahul Sharma",
+    "email": "rahul12@college.edu",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69b4d31de4df6c5e96ae254d",
+    "fullName": "Alice Brown",
+    "email": "alice55@super.edu",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69b52566791a409fbb8a8e85",
+    "fullName": "TestStudent",
+    "email": "teststudent@clg.edu.in",
+    "role": "student"
+  },
+  {
+    "_id": "69b9465b516584846cee9562",
+    "fullName": "vignesh",
+    "email": "vignesh@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69b94694516584846cee9579",
+    "fullName": "sathish",
+    "email": "sathish@gmail.com",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69b989067950c58314c43d14",
+    "fullName": "SampleAdmin",
+    "email": "sampleadmin@gmail.com",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69b9896b7950c58314c43d2a",
+    "fullName": "SuperAdmin",
+    "email": "superadmin@gmail.com",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69baee819ee3de138d67e95f",
+    "fullName": "Suzy Dsouza",
+    "email": "suzy77@super.edu",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69bc769494ee2b2314bc2b06",
+    "fullName": "Tasmiya J",
+    "email": "tasmiyaj@super.com",
+    "role": "superadmin"
+  },
+  {
+    "_id": "69bdd95d500ebf3aaf6f7343",
+    "fullName": "Priya Patil",
+    "email": "priyap103@college.edu",
+    "role": "college-admin"
+  },
+  {
+    "_id": "69c3551e7c2d3377a3ff7883",
+    "fullName": "riya",
+    "email": "riya@gmail.com",
+    "role": "student"
+  },
+  {
+    "_id": "69c357a67c2d3377a3ff79da",
+    "fullName": "rio",
+    "email": "rio@gmail.com",
+    "role": "superadmin"
+  }
+]

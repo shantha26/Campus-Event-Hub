@@ -1,0 +1,75 @@
+<div class="chatbot-container">
+    <!-- Premium Chat Trigger -->
+    <button class="chat-toggle" (click)="chatService.toggleChat()" *ngIf="!chatService.isOpen()">
+        <span class="icon">💬</span>
+    </button>
+
+    <!-- Glassmorphism Chat Window -->
+    <div class="chat-window" *ngIf="chatService.isOpen()">
+        <div class="chat-header">
+            <div class="header-info">
+                <span class="icon">🤖</span>
+                <h3>Campus Assistant</h3>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" (click)="chatService.clearChat()" title="Restart Chat">🔄</button>
+                <button class="action-btn" (click)="chatService.toggleChat()">&times;</button>
+            </div>
+        </div>
+
+        <div class="chat-body" #chatBody>
+            <div *ngFor="let msg of chatService.messages()" class="chat-message"
+                [class.user-message]="msg.sender === 'user'" [class.bot-message]="msg.sender === 'bot'">
+
+                <div class="message-content">
+                    <p>{{ msg.text }}</p>
+
+                    <div *ngIf="msg.options && msg.options.length > 0" class="message-options">
+                        <button *ngFor="let opt of msg.options" (click)="handleOptionClick(opt.action)"
+                            class="option-btn">
+                            {{ opt.label }}
+                        </button>
+                    </div>
+                </div>
+                <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+            </div>
+        </div>
+
+        <div class="chat-footer">
+            <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Type a message..."
+                class="chat-input" />
+            <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim()">
+                <span class="icon">➤</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- <div class="chat-window" *ngIf="chatService.isOpen()">
+    <div class="chat-header">
+        <span>🤖 Campus Assistant</span>
+        <button (click)="chatService.toggleChat()">✖</button>
+    </div>
+
+    <div class="chat-body" #chatBody>
+        <div *ngFor="let msg of chatService.messages()" [ngClass]="msg.sender + '-message'">
+            <div class="message-bubble">
+                <p>{{ msg.text }}</p>
+                
+                <div class="option-container" *ngIf="msg.options">
+                    <button *ngFor="let opt of msg.options" 
+                            (click)="chatService.handleAction(opt.action)" 
+                            class="chat-option-btn">
+                        {{ opt.label }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-footer">
+        <input [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Type a message...">
+        <button (click)="sendMessage()">➤</button>
+    </div>
+</div> -->

@@ -1,0 +1,56 @@
+﻿[33mΓ¥»[39m Building...
+[32mΓ£ö[39m Building...
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-EHH7G4TE.js[39m     [2m | [22m[2mmain[22m         [2m | [22m[36m669.42 kB[39m[2m | [22m              [36m148.50 kB[39m
+[32mpolyfills-B6TNHZQ6.js[39m[2m | [22m[2mpolyfills[22m    [2m | [22m [36m34.58 kB[39m[2m | [22m               [36m11.32 kB[39m
+[32mstyles-MVNUKMW5.css[39m  [2m | [22m[2mstyles[22m       [2m | [22m [36m27.40 kB[39m[2m | [22m                [36m3.67 kB[39m
+
+[1m [22m                    [2m | [22m[1mInitial total[22m[2m | [22m[1m[93m731.40 kB[39m[22m[2m | [22m              [1m163.49 kB[22m
+
+Application bundle generation complete. [8.087 seconds]
+
+node.exe : 
+[1m[33m[33mΓû▓ [43;
+33m[[43;30mWARNING[43
+;33m][0m [1mbundle 
+initial exceeded 
+maximum budget. Budget 
+500.00 kB was not met 
+by 231.40 kB with a 
+total of 731.40 kB.[0m
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ([1m[33m[33   
+ mΓ... 731.40 kB.[    
+0m:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+
+
+[33mΓû▓ [43;33m[[43;
+30mWARNING[43;33m][0m
+ [1msrc/app/pages/stud
+ent-dashboard/student-d
+ashboard.component.css 
+exceeded maximum 
+budget. Budget 20.00 
+kB was not met by 6.04 
+kB with a total of 
+26.04 kB.[0m
+
+[39m[22m
+Output location: C:\Users\shali\OneDrive\Desktop\Group3_Team2\frontend\dist\campus-event-hub
+

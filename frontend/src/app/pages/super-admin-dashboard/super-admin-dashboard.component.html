@@ -1,0 +1,504 @@
+<div class="dash-layout">
+
+  <!-- ── SIDEBAR ────────────────────────────────────────────── -->
+  <aside class="dash-sidebar glass-panel">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🔰</div>
+      <div>
+        <span class="brand-name">CampusEventHub</span>
+        <span class="brand-role">Super Admin</span>
+      </div>
+    </div>
+
+    <!-- Profile Button -->
+    <div class="sidebar-user" (click)="openProfileModal()" title="View profile" style="cursor:pointer">
+      <div class="user-avatar sa-avatar">{{ getInitial() }}</div>
+      <div>
+        <div class="user-name">{{ getFullName() }}</div>
+        <div class="user-email">{{ getEmail() }}</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="currentView()==='overview'" (click)="setView('overview')">
+        <span class="nav-icon">📊</span> Overview
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='users'" (click)="setView('users')">
+        <span class="nav-icon">👥</span> All Users
+        @if (totalUsers > 0) { <span class="nav-badge">{{ totalUsers }}</span> }
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='events'" (click)="setView('events')">
+        <span class="nav-icon">📅</span> All Events
+        @if (events.length > 0) { <span class="nav-badge">{{ events.length }}</span> }
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='reports'" (click)="setView('reports')">
+        <span class="nav-icon">📈</span> Reports
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='settings'" (click)="setView('settings')">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+
+    <button class="sidebar-logout" (click)="logout()">🚪 Logout</button>
+  </aside>
+
+  <!-- ── MAIN ──────────────────────────────────────────────── -->
+  <main class="dash-main">
+    <header class="dash-topbar glass-panel">
+      <div class="topbar-title">
+        <h1>Super Admin Dashboard</h1>
+        <p>Platform oversight and management</p>
+      </div>
+      <div class="topbar-right">
+        <span class="date-pill">📅 {{ currentDate | date:'mediumDate' }}</span>
+        <div class="sa-profile-chip" (click)="openProfileModal()" title="Profile">
+          <div class="sa-chip-av">{{ getInitial() }}</div>
+          <span>{{ getFullName() }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="view-content">
+
+      <!-- ══════════════════════════════════════════════════════
+           OVERVIEW
+           ══════════════════════════════════════════════════════ -->
+      @if (currentView() === 'overview') {
+      <div class="sa-overview">
+
+        <!-- Stat Cards -->
+        <div class="sa-stats-grid">
+          <div class="sa-stat-card glass-card blue">
+            <div class="ssc-icon">📅</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ totalEvents }}</div>
+              <div class="ssc-label">Total Events</div>
+              <div class="ssc-sub">{{ upcomingEvents }} upcoming · {{ ongoingEvents }} ongoing</div>
+            </div>
+          </div>
+          <div class="sa-stat-card glass-card green">
+            <div class="ssc-icon">👥</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ totalUsers }}</div>
+              <div class="ssc-label">Total Users</div>
+              <div class="ssc-sub">{{ totalStudents }} students · {{ totalAdmins }} admins</div>
+            </div>
+          </div>
+          <div class="sa-stat-card glass-card purple">
+            <div class="ssc-icon">📋</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ totalRegistrations }}</div>
+              <div class="ssc-label">Total Registrations</div>
+              <div class="ssc-sub">{{ approvedRegistrations }} approved · {{ pendingRegistrations }} pending</div>
+            </div>
+          </div>
+          <div class="sa-stat-card glass-card orange">
+            <div class="ssc-icon">🏛</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ totalColleges }}</div>
+              <div class="ssc-label">Colleges</div>
+              <div class="ssc-sub">Unique institutions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column: Events Summary + Registration Analytics -->
+        <div class="sa-row-2">
+
+          <!-- Recent Events -->
+          <div class="sa-card glass-card">
+            <div class="sa-card-header">
+              <h3>📅 Recent Events</h3>
+              <button class="sa-link-btn" (click)="setView('events')">View All</button>
+            </div>
+            @if (eventsLoading) {
+              <p class="sa-loading">Loading...</p>
+            } @else if (events.length === 0) {
+              <p class="sa-empty">No events yet.</p>
+            } @else {
+              <div class="sa-event-list">
+                @for (ev of events.slice(0, 6); track ev._id) {
+                <div class="sa-event-row">
+                  <div class="sa-ev-left">
+                    <div class="sa-ev-dot" [class]="'dot-' + (ev.type || 'workshop')"></div>
+                    <div>
+                      <div class="sa-ev-title">{{ ev.title }}</div>
+                      <div class="sa-ev-meta">{{ ev.organizer }} · {{ formatDate(ev.startDate) }}</div>
+                    </div>
+                  </div>
+                  <span class="sa-badge" [class]="getStatusClass(ev.status)">{{ ev.status }}</span>
+                </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Registration Chart -->
+          <div class="sa-card glass-card">
+            <div class="sa-card-header">
+              <h3>📈 Monthly Registrations</h3>
+              <span class="sa-sub-text">Last 6 months</span>
+            </div>
+            @if (monthlyRegistrations.length === 0) {
+              <p class="sa-empty">No registration data yet.</p>
+            } @else {
+              <div class="sa-bar-chart">
+                @for (m of monthlyRegistrations; track m._id.month) {
+                <div class="sa-bar-col">
+                  <div class="sa-bar-wrap">
+                    <div class="sa-bar"
+                      [style.height.%]="(m.count / getMaxMonthlyCount()) * 100"
+                      [title]="m.count + ' registrations'">
+                    </div>
+                  </div>
+                  <div class="sa-bar-label">{{ getMonthLabel(m._id.month) }}</div>
+                  <div class="sa-bar-count">{{ m.count }}</div>
+                </div>
+                }
+              </div>
+            }
+
+            <!-- Event breakdown -->
+            <div class="sa-breakdown">
+              <div class="sa-bd-item"><span class="bd-dot upcoming"></span>Upcoming <strong>{{ upcomingEvents }}</strong></div>
+              <div class="sa-bd-item"><span class="bd-dot ongoing"></span>Ongoing <strong>{{ ongoingEvents }}</strong></div>
+              <div class="sa-bd-item"><span class="bd-dot completed"></span>Completed <strong>{{ completedEvents }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="sa-card sa-health-card">
+          <div class="sa-card-header"><h3>🖥 System Health</h3></div>
+          <div class="sa-health-grid">
+            <div class="health-item"><span class="health-label">Server Status</span><span class="health-val good">Healthy</span></div>
+            <div class="health-item"><span class="health-label">Database</span><span class="health-val good">Connected</span></div>
+            <div class="health-item"><span class="health-label">API Response</span><span class="health-val good">~120ms</span></div>
+            <div class="health-item"><span class="health-label">Uptime</span><span class="health-val good">99.9%</span></div>
+            <div class="health-item"><span class="health-label">Total Users</span><span class="health-val">{{ totalUsers }}</span></div>
+            <div class="health-item"><span class="health-label">Total Events</span><span class="health-val">{{ totalEvents }}</span></div>
+          </div>
+        </div>
+
+      </div>
+      }
+
+
+      <!-- ══════════════════════════════════════════════════════
+           ALL USERS
+           ══════════════════════════════════════════════════════ -->
+      @if (currentView() === 'users') {
+      <div class="sa-section glass-card">
+        <div class="sa-section-header">
+          <div>
+            <h2>All Users</h2>
+            <p>{{ filteredUsers.length }} of {{ allUsers.length }} users shown</p>
+          </div>
+          <button class="sa-refresh-btn" (click)="loadUsers()">🔄 Refresh</button>
+        </div>
+
+        <!-- Filters -->
+        <div class="sa-filters glass-panel">
+          <input class="sa-search" type="text" placeholder="🔍 Search by name, email, college..."
+            [(ngModel)]="userSearchTerm" (input)="onUserSearch()" />
+          <select class="sa-select" [(ngModel)]="userRoleFilter" (change)="onUserRoleChange()">
+            <option value="all">All Roles</option>
+            <option value="student">Students</option>
+            <option value="college-admin">College Admins</option>
+            <option value="superadmin">Super Admins</option>
+          </select>
+          <button class="sa-clear-btn" (click)="clearUserFilters()">✕ Clear</button>
+        </div>
+
+        <!-- Role summary -->
+        <div class="sa-role-chips">
+          <span class="role-chip-stat blue">👤 Students: {{ totalStudents }}</span>
+          <span class="role-chip-stat purple">🛡 Admins: {{ totalAdmins }}</span>
+          <span class="role-chip-stat orange">🔰 Super Admins: 1</span>
+        </div>
+
+        @if (usersLoading) {
+          <div class="sa-loading-block">Loading users...</div>
+        } @else if (filteredUsers.length === 0) {
+          <div class="sa-empty-block">No users found.</div>
+        } @else {
+          <div class="sa-table-wrap">
+            <table class="sa-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>College</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (u of filteredUsers; track u._id; let i = $index) {
+                <tr [class.suspended-row]="u.status === 'suspended'">
+                  <td class="td-num">{{ i + 1 }}</td>
+                  <td class="td-name">
+                    <div class="td-avatar">{{ (u.fullName || 'U').charAt(0) }}</div>
+                    {{ u.fullName }}
+                  </td>
+                  <td class="td-email">{{ u.email }}</td>
+                  <td>{{ u.college || '—' }}</td>
+                  <td><span class="sa-badge" [class]="getStatusClass(u.role)">{{ getRoleLabel(u.role) }}</span></td>
+                  <td>{{ formatDate(u.createdAt) }}</td>
+                  <td>
+                    <span class="sa-badge" [class]="u.status === 'suspended' ? 'badge-danger' : 'badge-success'">
+                      {{ u.status || 'active' }}
+                    </span>
+                  </td>
+                  <td class="td-actions">
+                    @if (u.status === 'suspended') {
+                      <button class="sa-act-btn activate" (click)="activateUser(u._id)">✅ Activate</button>
+                    } @else if (u.role !== 'superadmin') {
+                      <button class="sa-act-btn suspend" (click)="suspendUser(u._id)">⏸ Suspend</button>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+      }
+
+
+      <!-- ══════════════════════════════════════════════════════
+           EVENTS
+           ══════════════════════════════════════════════════════ -->
+      @if (currentView() === 'events') {
+      <div class="sa-section glass-card">
+        <div class="sa-section-header">
+          <div>
+            <h2>All Events</h2>
+            <p>{{ filteredEvents.length }} of {{ events.length }} events shown</p>
+          </div>
+          <button class="sa-refresh-btn" (click)="loadEvents()">🔄 Refresh</button>
+        </div>
+
+        <div class="sa-filters glass-panel">
+          <input class="sa-search" type="text" placeholder="🔍 Search by title, organizer..."
+            [(ngModel)]="eventSearchTerm" (input)="onEventSearch()" />
+          <select class="sa-select" [(ngModel)]="eventStatusFilter" (change)="onEventFilterChange()">
+            <option value="all">All Statuses</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select class="sa-select" [(ngModel)]="eventTypeFilter" (change)="onEventFilterChange()">
+            <option value="all">All Types</option>
+            <option value="technical">Technical</option>
+            <option value="cultural">Cultural</option>
+            <option value="sports">Sports</option>
+            <option value="workshop">Workshop</option>
+            <option value="seminar">Seminar</option>
+          </select>
+          <button class="sa-clear-btn" (click)="clearEventFilters()">✕ Clear</button>
+        </div>
+
+        @if (eventsLoading) {
+          <div class="sa-loading-block">Loading events...</div>
+        } @else if (filteredEvents.length === 0) {
+          <div class="sa-empty-block">No events found.</div>
+        } @else {
+          <div class="sa-table-wrap">
+            <table class="sa-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Organizer</th>
+                  <th>Type</th>
+                  <th>Start Date</th>
+                  <th>Participants</th>
+                  <th>Fee</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ev of filteredEvents; track ev._id; let i = $index) {
+                <tr>
+                  <td class="td-num">{{ i + 1 }}</td>
+                  <td class="td-title">{{ ev.title }}</td>
+                  <td>{{ ev.organizer }}</td>
+                  <td><span class="ev-type-tag">{{ ev.type }}</span></td>
+                  <td>{{ formatDate(ev.startDate) }}</td>
+                  <td>{{ ev.currentParticipants }} / {{ ev.maxParticipants }}</td>
+                  <td>{{ ev.registrationFee > 0 ? ('Rs.' + ev.registrationFee) : 'Free' }}</td>
+                  <td><span class="sa-badge" [class]="getStatusClass(ev.status)">{{ ev.status }}</span></td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+      }
+
+
+      <!-- ══════════════════════════════════════════════════════
+           REPORTS
+           ══════════════════════════════════════════════════════ -->
+      @if (currentView() === 'reports') {
+      <div class="sa-section glass-card">
+        <h2>Reports & Analytics</h2>
+
+        <!-- Summary stats -->
+        <div class="sa-stats-grid report-stats">
+          <div class="sa-stat-card blue">
+            <div class="ssc-icon">📋</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ totalRegistrations }}</div>
+              <div class="ssc-label">Total Registrations</div>
+            </div>
+          </div>
+          <div class="sa-stat-card green">
+            <div class="ssc-icon">✅</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ approvedRegistrations }}</div>
+              <div class="ssc-label">Approved</div>
+            </div>
+          </div>
+          <div class="sa-stat-card orange">
+            <div class="ssc-icon">⏳</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ pendingRegistrations }}</div>
+              <div class="ssc-label">Pending</div>
+            </div>
+          </div>
+          <div class="sa-stat-card purple">
+            <div class="ssc-icon">🏁</div>
+            <div class="ssc-body">
+              <div class="ssc-val">{{ completedEvents }}</div>
+              <div class="ssc-label">Events Completed</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Chart -->
+        @if (monthlyRegistrations.length > 0) {
+        <div class="sa-card">
+          <div class="sa-card-header">
+            <h3>📈 Registration Trend (Last 6 Months)</h3>
+          </div>
+          <div class="sa-bar-chart large-chart">
+            @for (m of monthlyRegistrations; track m._id.month) {
+            <div class="sa-bar-col">
+              <div class="sa-bar-wrap">
+                <div class="sa-bar"
+                  [style.height.%]="(m.count / getMaxMonthlyCount()) * 100"
+                  [title]="m.count + ' registrations'">
+                  <span class="bar-tooltip">{{ m.count }}</span>
+                </div>
+              </div>
+              <div class="sa-bar-label">{{ getMonthLabel(m._id.month) }}</div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- User breakdown -->
+        <div class="sa-card">
+          <div class="sa-card-header"><h3>👥 User Breakdown</h3></div>
+          <div class="sa-breakdown-bars">
+            <div class="bb-item">
+              <span class="bb-label">Students</span>
+              <div class="bb-bar-wrap">
+                <div class="bb-bar student" [style.width.%]="totalUsers > 0 ? (totalStudents / totalUsers * 100) : 0"></div>
+              </div>
+              <span class="bb-count">{{ totalStudents }}</span>
+            </div>
+            <div class="bb-item">
+              <span class="bb-label">College Admins</span>
+              <div class="bb-bar-wrap">
+                <div class="bb-bar admin" [style.width.%]="totalUsers > 0 ? (totalAdmins / totalUsers * 100) : 0"></div>
+              </div>
+              <span class="bb-count">{{ totalAdmins }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+
+      <!-- ══════════════════════════════════════════════════════
+           SETTINGS
+           ══════════════════════════════════════════════════════ -->
+      <!-- @if (currentView() === 'settings') {
+      <div class="sa-section glass-card">
+        <h2>Settings</h2>
+        <div class="sa-card settings-card">
+          <p class="sa-settings-note">Platform configuration and admin settings coming in the next milestone.</p>
+          <div class="sa-settings-grid">
+            <div class="setting-row"><span>Platform Name</span><strong>CampusEventHub</strong></div>
+            <div class="setting-row"><span>Version</span><strong>4.0 (Milestone 4)</strong></div>
+            <div class="setting-row"><span>Environment</span><strong>Development</strong></div>
+          </div>
+        </div>
+      </div>
+      } -->
+
+      @if (currentView() === 'settings') {
+      <div class="animate-in">
+        <h2 class="section-title" style="margin-bottom:20px;">System Settings</h2>
+        <div class="settings-sections">
+          <div class="settings-section">
+            <h3>General Settings</h3>
+            <div class="settings-form">
+              <div class="form-group"><label class="form-label">Platform Name</label><input class="form-control" value="CampusEventHub"></div>
+              <div class="form-group"><label class="form-label">Support Email</label><input type="email" class="form-control" value="support&#64;campuseventhub.com"></div>
+              <div class="form-group"><label class="form-label">Default Max Participants</label><input type="number" class="form-control" value="200"></div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>Security</h3>
+            <div class="setting-row">
+              <div><div class="setting-label">Email Verification</div><div class="setting-desc">Require new users to verify their email</div></div>
+              <input type="checkbox" checked>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">Admin 2FA</div><div class="setting-desc">Two-factor authentication for admins</div></div>
+              <input type="checkbox" checked>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+          <button class="btn btn-primary" (click)="saveSettings()">Save Settings</button>
+          <button class="btn btn-secondary">Reset to Default</button>
+        </div>
+      </div>
+      }
+
+    </div>
+  </main>
+</div>
+
+
+<!-- ══ PROFILE MODAL ════════════════════════════════════════════════════════ -->
+@if (showProfileModal) {
+<div class="modal-backdrop" (click)="closeProfileModal()">
+  <div class="sa-profile-modal" (click)="$event.stopPropagation()">
+    <button class="evm-close" style="position:absolute;top:16px;right:16px;" (click)="closeProfileModal()">✕</button>
+    <div class="sa-profile-avatar">{{ getInitial() }}</div>
+    <h2>{{ getFullName() }}</h2>
+    <span class="role-chip sa-role-chip">🔰 Super Admin</span>
+    <div class="sa-profile-grid">
+      <div class="pg-item"><label>📧 Email</label><span>{{ getEmail() }}</span></div>
+      <div class="pg-item"><label>🏛 Organization</label><span>{{ getCollege() }}</span></div>
+      <div class="pg-item"><label>📅 Total Events</label><span>{{ totalEvents }}</span></div>
+      <div class="pg-item"><label>👥 Total Users</label><span>{{ totalUsers }}</span></div>
+      <div class="pg-item"><label>📋 Registrations</label><span>{{ totalRegistrations }}</span></div>
+      <div class="pg-item"><label>🏛 Colleges</label><span>{{ totalColleges }}</span></div>
+    </div>
+  </div>
+</div>
+}

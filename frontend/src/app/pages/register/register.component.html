@@ -1,0 +1,234 @@
+<div class="auth-page">
+  <!-- Left Panel - Hero Section -->
+  <div class="auth-left">
+    <div class="brand">
+      <div class="brand-logo">🎓</div>
+      <div class="brand-text">CampusEventHub</div>
+    </div>
+    
+    <div class="hero-content animate-slide">
+      <h1>Join CampusEventHub Today! 🚀</h1>
+      <p>Register to explore technical, cultural and sports events happening across colleges in India.</p>
+    </div>
+    
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">50+</div>
+        <div class="lbl">Colleges</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">500+</div>
+        <div class="lbl">Events</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">10K+</div>
+        <div class="lbl">Students</div>
+      </div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="floating-elements">
+      <div class="float-card c1">🎯 Discover Events</div>
+      <div class="float-card c2">🏆 Compete & Win</div>
+      <div class="float-card c3">🎨 Cultural Fests</div>
+      <div class="float-card c4">💻 Hackathons</div>
+      <div class="float-card c5">🤝 Networking</div>
+      <div class="float-card c6">🛠️ Workshops</div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Registration Form -->
+  <div class="auth-right">
+    <div class="auth-card animate-scale">
+      <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Start your journey with CampusEventHub</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-danger">
+          <span class="alert-icon">⚠️</span>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+      
+      @if (successMessage) {
+        <div class="alert alert-success">
+          <span class="alert-icon">✅</span>
+          <span>{{ successMessage }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="register()" #registerForm="ngForm">
+        <!-- Full Name -->
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              class="form-control"
+              placeholder="Enter your full name"
+              [(ngModel)]="fullName"
+              name="fullName"
+              required
+              #nameInput="ngModel">
+          </div>
+          @if (nameInput.invalid && nameInput.touched) {
+            <div class="form-error">
+              <span>⚠️</span>
+              <span>Name is required</span>
+            </div>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input 
+              type="email" 
+              class="form-control"
+              placeholder="you@college.edu"
+              [(ngModel)]="email"
+              name="email"
+              required
+              email
+              #emailInput="ngModel">
+          </div>
+          @if (emailInput.invalid && emailInput.touched) {
+            <div class="form-error">
+              <span>⚠️</span>
+              <span>Please enter a valid email</span>
+            </div>
+          }
+        </div>
+
+        <!-- College -->
+        <div class="form-group">
+          <label class="form-label">College</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🏫</span>
+            <input 
+              type="text" 
+              class="form-control"
+              placeholder="Your college name"
+              [(ngModel)]="college"
+              name="college"
+              required
+              #collegeInput="ngModel">
+          </div>
+          @if (collegeInput.invalid && collegeInput.touched) {
+            <div class="form-error">
+              <span>⚠️</span>
+              <span>College name is required</span>
+            </div>
+          }
+        </div>
+
+        <!-- Role -->
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🎭</span>
+            <select 
+              class="form-control"
+              [(ngModel)]="role"
+              name="role"
+              required
+              #roleInput="ngModel">
+              <option value="student">Student</option>
+              <option value="college-admin">College Admin</option>
+              <option value="superadmin">Super Admin</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-control"
+              placeholder="Minimum 8 characters"
+              [(ngModel)]="password"
+              name="password"
+              required
+              minlength="8"
+              #passwordInput="ngModel">
+            <button 
+              type="button" 
+              class="password-toggle"
+              (click)="showPassword = !showPassword">
+              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          @if (passwordInput.invalid && passwordInput.touched) {
+            <div class="form-error">
+              <span>⚠️</span>
+              <span>Password must be at least 8 characters</span>
+            </div>
+          }
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              class="form-control"
+              placeholder="Repeat password"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              required
+              #confirmInput="ngModel">
+            <button 
+              type="button" 
+              class="password-toggle"
+              (click)="showConfirmPassword = !showConfirmPassword">
+              {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          @if (confirmInput.touched && password !== confirmPassword) {
+            <div class="form-error">
+              <span>⚠️</span>
+              <span>Passwords do not match</span>
+            </div>
+          }
+        </div>
+
+        <!-- Terms -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="acceptTerms" name="acceptTerms" required>
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a></span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading || !registerForm.form.valid || !acceptTerms">
+          @if (isLoading) {
+            <span class="spinner spinner-sm"></span>
+            <span>Creating account...</span>
+          } @else {
+            <span>Create Account →</span>
+          }
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>OR</span>
+      </div>
+
+      <p class="auth-footer">
+        Already have an account? 
+        <a (click)="goToLogin()">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

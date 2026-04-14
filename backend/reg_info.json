@@ -1,0 +1,17 @@
+{
+  "registrationId": "69c356427c2d3377a3ff7909",
+  "student": {
+    "name": "riya",
+    "email": "riya@gmail.com",
+    "role": "student"
+  },
+  "status": "approved",
+  "event": {
+    "title": "Tech Zone",
+    "organizer": {
+      "name": "mani",
+      "email": "mani@gmail.com",
+      "role": "college-admin"
+    }
+  }
+}

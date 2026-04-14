@@ -1,0 +1,18 @@
+# Angular
+.angular/
+dist/
+node_modules/
+
+# Backend
+api/node_modules/
+backend/node_modules/
+api/.env.example
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# Uploads
+backend/uploads/

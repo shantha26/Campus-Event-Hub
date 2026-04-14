@@ -1,0 +1,13 @@
+{
+  "_id": "69c357a67c2d3377a3ff79da",
+  "fullName": "rio",
+  "email": "rio@gmail.com",
+  "password": "$2b$10$7d0lOhEvhDMFhj4S3Wk20.gYI7HtF/1dPDpAzp0Rt6ZWiLo34bgYy",
+  "college": "sona college of technology",
+  "role": "superadmin",
+  "walletBalance": 500,
+  "status": "active",
+  "createdAt": "2026-03-25T03:33:58.107Z",
+  "updatedAt": "2026-03-25T03:33:58.107Z",
+  "__v": 0
+}

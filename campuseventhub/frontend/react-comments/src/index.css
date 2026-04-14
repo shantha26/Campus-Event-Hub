@@ -1,0 +1,10 @@
+/* Global reset — all styling is handled in CommentSection.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f0c29;
+}

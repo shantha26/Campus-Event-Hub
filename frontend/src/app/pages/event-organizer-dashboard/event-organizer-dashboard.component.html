@@ -1,0 +1,1420 @@
+<div class="dash-layout">
+  <!-- ─── Sidebar ─────────────────────────────────────────────────────── -->
+  <aside class="dash-sidebar glass-panel">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <span class="brand-name">CampusEventHub</span>
+        <span class="brand-role">College Admin</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user" (click)="openProfileModal()" style="cursor:pointer" title="View profile">
+      <div class="user-avatar">{{ getInitial() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ getFullName() || 'Admin' }}</div>
+        <div class="user-email">{{ getEmail() }}</div>
+      </div>
+    </div>
+
+    <!-- Quick Stats in Sidebar -->
+    <div class="sidebar-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ totalEvents }}</span>
+        <span class="stat-label">Total Events</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ activeEvents }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ pendingApprovals }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="currentView()==='overview'" (click)="setView('overview')">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Overview</span>
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='events'" (click)="setView('events')">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Events</span>
+        <span class="nav-badge">{{ totalEvents }}</span>
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='notifications'"
+        (click)="setView('notifications'); loadNotifications()">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Notifications</span>
+        @if (getUnreadCount() > 0) {
+        <span class="nav-badge danger">{{ getUnreadCount() }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='analytics'" (click)="setView('analytics')">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">Analytics</span>
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='reports'" (click)="setView('reports')">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Reports</span>
+      </button>
+      <button class="nav-item" [class.active]="currentView()==='settings'" (click)="setView('settings')">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Settings</span>
+      </button>
+    </nav>
+
+    <button class="sidebar-logout" (click)="logout()">
+      <span>🚪</span> Logout
+    </button>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────────────────────────── -->
+  <main class="dash-main">
+
+    <!-- ─── Top Bar ────────────────────────────────────────────────────── -->
+    <header class="dash-topbar glass-panel">
+      <div class="topbar-title">
+        @if (currentView() === 'overview') {
+        <h1>Dashboard Overview</h1>
+        <p>Welcome back, {{ getFullName() }}! Here's what's happening today.</p>
+        }
+        @if (currentView() === 'events') {
+        <h1>Event Management</h1>
+        <p>Create, edit and manage your college events</p>
+        }
+        @if (currentView() === 'notifications') {
+        <h1>Notifications Center</h1>
+        <p>Stay updated with all activities</p>
+        }
+        @if (currentView() === 'analytics') {
+        <h1>Analytics Dashboard</h1>
+        <p>Track performance and engagement metrics</p>
+        }
+        @if (currentView() === 'reports') {
+        <h1>Reports & Exports</h1>
+        <p>Generate and download detailed reports</p>
+        }
+        @if (currentView() === 'settings') {
+        <h1>Settings</h1>
+        <p>Configure your dashboard preferences</p>
+        }
+      </div>
+      <div class="topbar-actions">
+        <!-- Notification Bell -->
+        <div class="notif-bell-wrap">
+          <button class="notif-bell-btn" (click)="toggleNotifDropdown()" title="Notifications">
+            <span class="bell-icon">🔔</span>
+            @if (getUnreadCount() > 0) {
+            <span class="notif-count-badge">{{ getUnreadCount() }}</span>
+            }
+          </button>
+
+          <!-- Notification Dropdown -->
+          @if (showNotifDropdown) {
+          <div class="notif-dropdown" (click)="$event.stopPropagation()">
+            <div class="notif-dropdown-header">
+              <div class="header-title">
+                <h4>Notifications</h4>
+                @if (getUnreadCount() > 0) {
+                <span class="unread-badge">{{ getUnreadCount() }} new</span>
+                }
+              </div>
+              <button class="btn-mark-all" (click)="markAllNotifsRead()" title="Mark all as read">✓ Mark all
+                read</button>
+            </div>
+
+            <div class="notif-list">
+              @if (notificationList.length === 0) {
+              <div class="notif-empty-state">
+                <div class="empty-icon">🔕</div>
+                <p>No notifications yet</p>
+                <small>You're all caught up!</small>
+              </div>
+              }
+
+              @for (n of notificationList.slice(0, 8); track n._id) {
+              <div class="notif-item" [class.unread]="!n.read" (click)="markNotifRead(n); handleNotificationClick(n)">
+                <div class="notif-icon" [ngClass]="n.type">
+                  {{ getNotifIcon(n.type) }}
+                </div>
+                <div class="notif-content">
+                  <div class="notif-header">
+                    <h5 class="notif-title">{{ n.title }}</h5>
+                    <span class="notif-time">{{ getTimeAgo(n.createdAt) }}</span>
+                  </div>
+                  <p class="notif-message">{{ n.message }}</p>
+                  @if (n.data?.eventTitle) {
+                  <span class="notif-event">{{ n.data.eventTitle }}</span>
+                  }
+                </div>
+                <button class="notif-close" (click)="$event.stopPropagation(); deleteNotif(n)" title="Delete">✕</button>
+              </div>
+              }
+            </div>
+
+            @if (notificationList.length > 8) {
+            <div class="notif-footer">
+              <button class="view-all-btn" (click)="setView('notifications'); closeNotifDropdown()">
+                View All ({{ notificationList.length }})
+              </button>
+            </div>
+            }
+          </div>
+          }
+        </div>
+
+        <div class="admin-avatar-btn" (click)="openProfileModal()" title="View profile">
+          {{ getInitial() }}
+        </div>
+        <button class="btn btn-primary" (click)="openCreate()">
+          <span>➕</span> Create Event
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── MAIN CONTENT AREA ───────────────────────────────────────────── -->
+    <div class="view-content">
+
+      <!-- ══ OVERVIEW DASHBOARD ═══════════════════════════════════════════ -->
+      @if (currentView() === 'overview') {
+      <div class="animate-in">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>Good Evening, {{ authService.getFullName() }}! 👋</h2>
+            <p>{{ today | date:'fullDate' }} · {{ authService.getCollege() || 'No College' }}</p>
+            <!-- DEBUG INFO -->
+            <p style="font-size: 10px; opacity: 0.5;">ID: {{ authService.getUserId() }} | Role: {{ authService.getRole() }}</p>
+          </div>
+          <div class="welcome-actions">
+            <button class="btn btn-outline" (click)="openCreate()">
+              <span>➕</span> Quick Create
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid-modern">
+          <div class="stat-card-premium" (click)="setView('events')">
+            <div class="stat-icon-wrapper gradient-blue">
+              <span class="stat-icon">📅</span>
+            </div>
+            <div class="stat-details">
+              <h3>{{ totalEvents }}</h3>
+              <p>Total Events</p>
+            </div>
+            <div class="stat-trend up">
+              <span>↑ 12%</span>
+            </div>
+          </div>
+
+          <div class="stat-card-premium" (click)="setView('events')">
+            <div class="stat-icon-wrapper gradient-green">
+              <span class="stat-icon">🟢</span>
+            </div>
+            <div class="stat-details">
+              <h3>{{ activeEvents }}</h3>
+              <p>Active Events</p>
+            </div>
+            <div class="stat-trend up">
+              <span>↑ 8%</span>
+            </div>
+          </div>
+
+          <div class="stat-card-premium" (click)="setView('notifications')">
+            <div class="stat-icon-wrapper gradient-orange">
+              <span class="stat-icon">👥</span>
+            </div>
+            <div class="stat-details">
+              <h3>{{ totalRegistrations }}</h3>
+              <p>Registrations</p>
+            </div>
+            <div class="stat-trend up">
+              <span>↑ 23%</span>
+            </div>
+          </div>
+
+          <div class="stat-card-premium">
+            <div class="stat-icon-wrapper gradient-purple">
+              <span class="stat-icon">⏳</span>
+            </div>
+            <div class="stat-details">
+              <h3>{{ pendingApprovals }}</h3>
+              <p>Pending Approvals</p>
+            </div>
+            <div class="stat-trend">
+              @if (pendingApprovals > 0) {
+              <span class="warning">Needs attention</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-modern">
+          <h3>Quick Actions</h3>
+          <div class="actions-grid">
+            <div class="action-card" (click)="openCreate()">
+              <div class="action-icon">➕</div>
+              <div class="action-info">
+                <h4>Create Event</h4>
+                <p>Add a new event to your college</p>
+              </div>
+            </div>
+            <div class="action-card" (click)="setView('events')">
+              <div class="action-icon">📋</div>
+              <div class="action-info">
+                <h4>Manage Events</h4>
+                <p>Edit or update existing events</p>
+              </div>
+            </div>
+            <div class="action-card" (click)="setView('notifications')">
+              <div class="action-icon">🔔</div>
+              <div class="action-info">
+                <h4>Review Approvals</h4>
+                <p>{{ pendingApprovals }} pending requests</p>
+              </div>
+            </div>
+            <div class="action-card" (click)="exportCSV()">
+              <div class="action-icon">📊</div>
+              <div class="action-info">
+                <h4>Export Data</h4>
+                <p>Download reports as CSV</p>
+              </div>
+            </div>
+            <div class="action-card highlight" (click)="navigateToScan()">
+              <div class="action-icon">🎟️</div>
+              <div class="action-info">
+                <h4>Scan & Check-in</h4>
+                <p>Process QR tickets for entry</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Events & Activity -->
+        <div class="dashboard-grid">
+          <!-- Recent Events -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>📋 Recent Events</h3>
+              <button class="view-all" (click)="setView('events')">View All →</button>
+            </div>
+            <div class="card-body">
+              @if (filteredEvents.length === 0) {
+              <div class="empty-state-mini">
+                <p>No events yet. Create your first event!</p>
+              </div>
+              } @else {
+              <div class="event-list">
+                @for (ev of filteredEvents.slice(0, 5); track ev._id) {
+                <div class="event-list-item" (click)="openEdit(ev)">
+                  <div class="event-status-dot" [ngClass]="ev.status"></div>
+                  <div class="event-info">
+                    <h4>{{ ev.title }}</h4>
+                    <p class="event-meta">
+                      <span>📅 {{ formatDate(ev.startDate) }}</span>
+                      <span>👥 {{ ev.currentParticipants || 0 }}/{{ ev.maxParticipants }}</span>
+                    </p>
+                  </div>
+                  <span class="event-badge" [ngClass]="ev.status">{{ ev.status }}</span>
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Recent Activity / Notifications -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>🔔 Recent Activity</h3>
+              <button class="view-all" (click)="setView('notifications')">View All →</button>
+            </div>
+            <div class="card-body">
+              @if (notificationList.length === 0) {
+              <div class="empty-state-mini">
+                <p>No recent activity</p>
+              </div>
+              } @else {
+              <div class="activity-list">
+                @for (n of notificationList.slice(0, 5); track n._id) {
+                <div class="activity-item" [class.unread]="!n.read"
+                  (click)="markNotifRead(n); handleNotificationClick(n)">
+                  <div class="activity-icon" [ngClass]="n.type">{{ getNotifIcon(n.type) }}</div>
+                  <div class="activity-content">
+                    <p class="activity-title">{{ n.title }}</p>
+                    <p class="activity-message">{{ n.message }}</p>
+                    <span class="activity-time">{{ getTimeAgo(n.createdAt) }}</span>
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ══ NOTIFICATIONS CENTER ════════════════════════════════════════ -->
+      @if (currentView() === 'notifications') {
+      <div class="animate-in">
+        <div class="notifications-header">
+          <div class="header-left">
+            <h2>Notification Center</h2>
+            <p class="subtitle">Stay updated with all platform activities</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline btn-sm" (click)="markAllNotifsRead()">
+              <span>✓</span> Mark All Read
+            </button>
+            <button class="btn btn-outline btn-sm" (click)="refreshNotifications()">
+              <span>🔄</span> Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Notification Filters -->
+        <div class="notification-filters">
+          <button class="filter-chip" [class.active]="notificationFilter === 'all'"
+            (click)="filterNotifications('all')">
+            All
+            <span class="count">{{ getNotificationList().length }}</span>
+          </button>
+          <button class="filter-chip" [class.active]="notificationFilter === 'unread'"
+            (click)="filterNotifications('unread')">
+            Unread
+            <span class="count">{{ getUnreadCount() }}</span>
+          </button>
+          <button class="filter-chip" [class.active]="notificationFilter === 'registrations'"
+            (click)="filterNotifications('registrations')">
+            Registrations
+          </button>
+          <button class="filter-chip" [class.active]="notificationFilter === 'events'"
+            (click)="filterNotifications('events')">
+            Events
+          </button>
+          <button class="filter-chip" [class.active]="notificationFilter === 'system'"
+            (click)="filterNotifications('system')">
+            System
+          </button>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notifications-list-full">
+          @if (filteredNotifications.length === 0) {
+          <div class="empty-state-full">
+            <div class="empty-icon">🔕</div>
+            <h3>No notifications</h3>
+            <p>You're all caught up! Check back later for updates.</p>
+          </div>
+          } @else {
+          @for (n of filteredNotifications; track n._id) {
+          <div class="notification-card-full" [class.unread]="!n.read">
+            <div class="notification-card-left">
+              <div class="notification-icon-large" [ngClass]="n.type">
+                {{ getNotifIcon(n.type) }}
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h4>{{ n.title }}</h4>
+                  <span class="notification-time">{{ formatDateTime(n.createdAt) }}</span>
+                </div>
+                <p class="notification-message">{{ n.message }}</p>
+                @if (n.data?.eventTitle) {
+                <div class="notification-event">
+                  <span>📅 {{ n.data.eventTitle }}</span>
+                  @if (n.data?.studentName) {
+                  <span>👤 {{ n.data.studentName }}</span>
+                  }
+                </div>
+                }
+                @if (n.data?.rejectionReason) {
+                <div class="notification-reason">
+                  <strong>Reason:</strong> {{ n.data.rejectionReason }}
+                </div>
+                }
+                <div class="notification-footer">
+                  <span class="notification-time-mobile">{{ getTimeAgo(n.createdAt) }}</span>
+                  <div class="notification-actions">
+                    @if (!n.read) {
+                    <button class="btn-icon" (click)="markNotifRead(n)" title="Mark as read">✓</button>
+                    }
+                    @if (n.type === 'new-registration' && n.data?.eventId) {
+                    <button class="btn-icon" (click)="openParticipantsFromNotif(n.data.eventId)"
+                      title="View registrations">👥</button>
+                    }
+                    <button class="btn-icon danger" (click)="deleteNotif(n)" title="Delete">🗑️</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+          }
+        </div>
+      </div>
+      }
+
+      <!-- ══ EVENTS VIEW ═══════════════════════════════════════════════════ -->
+      @if (currentView() === 'events') {
+      <div class="animate-in">
+        <div class="section-head" style="margin-bottom:14px;">
+          <div>
+            <h2 class="section-title">Manage Events</h2>
+            <p class="section-subtitle">{{ events.length }} events total</p>
+          </div>
+          <button class="btn btn-primary" (click)="openCreate()">➕ Create New Event</button>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar glass-panel">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search events..." [(ngModel)]="eventSearchTerm" (input)="onSearch()">
+          </div>
+          <select class="filter-select" [(ngModel)]="eventStatusFilter" (change)="onFilterChange()">
+            <option value="all">All Status</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select class="filter-select" [(ngModel)]="eventTypeFilter" (change)="onFilterChange()">
+            <option value="all">All Types</option>
+            <option value="technical">Technical</option>
+            <option value="cultural">Cultural</option>
+            <option value="sports">Sports</option>
+            <option value="workshop">Workshop</option>
+            <option value="seminar">Seminar</option>
+          </select>
+          <input type="date" class="date-filter" [(ngModel)]="startDateFilter" (change)="onFilterChange()">
+          <span class="filter-sep">to</span>
+          <input type="date" class="date-filter" [(ngModel)]="endDateFilter" (change)="onFilterChange()">
+          <button class="btn btn-secondary btn-sm" (click)="clearFilters()">✕ Clear</button>
+        </div>
+
+        <!-- Events Table -->
+        <div class="section-card glass-card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Venue</th>
+                  <th>Participants</th>
+                  <th>Fee</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ev of filteredEvents; track ev._id) {
+                <tr>
+                  <td>
+                    <div class="event-cell">
+                    <img [src]="getImageUrl(ev.imageUrl)" class="event-thumb" alt="">
+                      <div>
+                        <div class="event-cell-title">{{ ev.title }}</div>
+                        <div class="event-cell-sub">{{ ev.type }} · {{ ev.category }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ formatDate(ev.startDate) }}</td>
+                  <td>{{ ev.venue }}</td>
+                  <td>
+                    <div class="progress-wrap">
+                      <span>{{ ev.currentParticipants }}/{{ ev.maxParticipants }}</span>
+                      <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="(ev.currentParticipants/ev.maxParticipants)*100">
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ ev.registrationFee > 0 ? '₹' + ev.registrationFee : 'Free' }}</td>
+                  <td><span class="badge" [ngClass]="getStatusClass(ev.status)">{{ ev.status }}</span></td>
+                  <td class="actions-cell">
+                    <button class="icon-btn" title="Edit" (click)="openEdit(ev)">✏️</button>
+                    <button class="icon-btn" title="Participants" (click)="openParticipants(ev)">👥</button>
+                    <!-- ✅ Feedback button for all events - shows star icon -->
+                    <button class="icon-btn" title="View Feedback" (click)="openFeedback(ev)">⭐</button>
+                    @if (ev.status !== 'cancelled') {
+                    <button class="icon-btn forum-btn" title="Discussion Forum" (click)="openForum(ev)">💬</button>
+                    }
+                    @if (ev.status !== 'cancelled') {
+                    <button class="icon-btn danger" title="Cancel" (click)="cancelEvent(ev)">🚫</button>
+                    }
+                    <button class="icon-btn danger" title="Delete" (click)="deleteEvent(ev)">🗑️</button>
+                  </td>
+                </tr>
+                } @empty {
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state">
+                      <div class="empty-icon">📭</div>
+                      <p>No events found</p>
+                      <button class="btn btn-primary btn-sm" (click)="openCreate()">Create Event</button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ══ ANALYTICS VIEW ════════════════════════════════════════════════ -->
+      @if (currentView() === 'analytics') {
+      <div class="animate-in">
+        <div class="analytics-header">
+          <h2>Analytics Dashboard</h2>
+          <p class="subtitle">Track your event performance and engagement</p>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="chart-placeholder">
+              <div class="chart-bars">
+                <div class="bar" style="height: 60%"></div>
+                <div class="bar" style="height: 80%"></div>
+                <div class="bar" style="height: 45%"></div>
+                <div class="bar" style="height: 70%"></div>
+                <div class="bar" style="height: 55%"></div>
+                <div class="bar" style="height: 90%"></div>
+                <div class="bar" style="height: 40%"></div>
+              </div>
+            </div>
+            <h4>Weekly Registrations</h4>
+            <p class="chart-value">+{{ totalRegistrations }} this week</p>
+          </div>
+
+          <div class="analytics-card">
+            <div class="pie-chart-placeholder">
+              <div class="pie-segment" style="--percentage: 45; --color: var(--brand-600)"></div>
+              <div class="pie-segment" style="--percentage: 30; --color: var(--success)"></div>
+              <div class="pie-segment" style="--percentage: 25; --color: var(--warning)"></div>
+            </div>
+            <h4>Event Types Distribution</h4>
+            <div class="legend">
+              <span><span class="dot" style="background: var(--brand-600)"></span> Technical (45%)</span>
+              <span><span class="dot" style="background: var(--success)"></span> Cultural (30%)</span>
+              <span><span class="dot" style="background: var(--warning)"></span> Sports (25%)</span>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <h4>Top Performing Events</h4>
+            <div class="top-events-list">
+              @for (ev of getTopEvents(); track ev._id) {
+              <div class="top-event-item">
+                <span class="event-rank">#{{ $index + 1 }}</span>
+                <span class="event-name">{{ ev.title }}</span>
+                <span class="event-count">{{ ev.currentParticipants || 0 }} registrations</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <h4>Registration Trend</h4>
+            <div class="trend-stats">
+              <div class="trend-stat">
+                <span class="trend-label">Average per event</span>
+                <span class="trend-value">{{ avgParticipants }}</span>
+              </div>
+              <div class="trend-stat">
+                <span class="trend-label">Completion rate</span>
+                <span class="trend-value">{{ getCompletionRate() }}%</span>
+              </div>
+              <div class="trend-stat">
+                <span class="trend-label">Pending approvals</span>
+                <span class="trend-value warning">{{ pendingApprovals }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ═══ REPORTS VIEW ════════════════════════════════════════════════ -->
+      @if (currentView() === 'reports') {
+      <div class="animate-in">
+        <div class="reports-header">
+          <h2>Reports & Exports</h2>
+          <p class="subtitle">Generate and download detailed reports</p>
+        </div>
+
+        <div class="reports-grid">
+          <!-- Export Events CSV -->
+          <div class="report-card">
+            <div class="report-icon">📋</div>
+            <div class="report-body">
+              <h3>Events Data Export</h3>
+              <p>Download all {{ totalEvents }} events with full details as CSV</p>
+            </div>
+            <button class="btn btn-primary btn-sm" (click)="exportCSV()">⬇ Download CSV</button>
+          </div>
+
+          <!-- Export Registrations CSV -->
+          <div class="report-card">
+            <div class="report-icon">👥</div>
+            <div class="report-body">
+              <h3>Registration Summary</h3>
+              <p>Fill rates and registration counts per event</p>
+            </div>
+            <button class="btn btn-primary btn-sm" (click)="exportRegistrationsCSV()">⬇ Download CSV</button>
+          </div>
+
+          <!-- Live stat cards -->
+          <div class="report-card">
+            <div class="report-icon">📈</div>
+            <div class="report-body">
+              <h3>Avg Participants per Event</h3>
+              <p>Average fill rate across all your events</p>
+            </div>
+            <div class="report-stat">{{ avgParticipants }}</div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-icon">✅</div>
+            <div class="report-body">
+              <h3>Active Events</h3>
+              <p>Events currently upcoming or ongoing</p>
+            </div>
+            <div class="report-stat">{{ activeEvents }}</div>
+          </div>
+        </div>
+
+        <!-- Additional Stats -->
+        <div class="stats-grid" style="margin-top:24px;">
+          <div class="stat-card glass-card">
+            <div class="stat-icon-box icon-indigo">📅</div>
+            <div class="stat-number">{{ totalEvents }}</div>
+            <div class="stat-label">Total Events</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-icon-box icon-teal">👥</div>
+            <div class="stat-number">{{ totalRegistrations }}</div>
+            <div class="stat-label">Total Registrations</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-icon-box icon-amber">🟢</div>
+            <div class="stat-number">{{ activeEvents }}</div>
+            <div class="stat-label">Active Events</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-icon-box icon-violet">📊</div>
+            <div class="stat-number">{{ avgParticipants }}</div>
+            <div class="stat-label">Avg Participants</div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ═══ SETTINGS VIEW ═══════════════════════════════════════════════ -->
+      @if (currentView() === 'settings') {
+      <div class="animate-in">
+        <div class="settings-header">
+          <h2>Settings</h2>
+          <p class="subtitle">Manage your dashboard preferences</p>
+        </div>
+
+        <div class="settings-grid">
+          <div class="settings-card">
+            <h3>Profile Settings</h3>
+            <div class="settings-form">
+              <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" class="form-control" [value]="getFullName()" placeholder="Your name">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" [value]="getEmail()" placeholder="Your email" readonly>
+              </div>
+              <div class="form-group">
+                <label>College</label>
+                <input type="text" class="form-control" [value]="getCollege()" placeholder="College name" readonly>
+              </div>
+              <button class="btn btn-primary">Update Profile</button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>Notification Preferences</h3>
+            <div class="settings-options">
+              <div class="option-row">
+                <div>
+                  <h4>Email Notifications</h4>
+                  <p>Receive email alerts for new registrations</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="option-row">
+                <div>
+                  <h4>Push Notifications</h4>
+                  <p>Get browser notifications for updates</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="option-row">
+                <div>
+                  <h4>Daily Digest</h4>
+                  <p>Receive a summary of daily activities</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>Display Settings</h3>
+            <div class="settings-options">
+              <div class="option-row">
+                <div>
+                  <h4>Dark Mode</h4>
+                  <p>Switch to dark theme</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" (change)="toggleDarkMode()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="option-row">
+                <div>
+                  <h4>Compact View</h4>
+                  <p>Show more items per page</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>Export & Backup</h3>
+            <div class="settings-actions">
+              <button class="btn btn-outline btn-block" (click)="exportCSV()">
+                📊 Export Events Data
+              </button>
+              <button class="btn btn-outline btn-block" (click)="exportRegistrationsCSV()">
+                👥 Export Registrations
+              </button>
+              <button class="btn btn-outline btn-block" (click)="backupData()">
+                💾 Create Backup
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+    </div><!-- /view-content -->
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CREATE EVENT MODAL
+═══════════════════════════════════════════════════════════ -->
+@if (showCreateModal) {
+<div class="modal-overlay" (click)="closeCreate()">
+  <div class="modal-box wide" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Create New Event</h3>
+      <button class="modal-close" (click)="closeCreate()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="eventForm" (ngSubmit)="submitCreate()">
+        <!-- Form fields (same as before) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Event Title *</label>
+            <input formControlName="title" class="form-control" placeholder="e.g. Inter-College Hackathon 2025">
+            @if (hasErr('title','required')) { <div class="form-error">Title is required</div> }
+            @if (hasErr('title','minlength')) { <div class="form-error">Min 3 characters</div> }
+          </div>
+          <div class="form-group">
+            <label class="form-label">Organizer / College *</label>
+            <input formControlName="organizer" class="form-control" placeholder="Organizer name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea formControlName="description" class="form-control" rows="3"
+            placeholder="Describe the event..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Event Type *</label>
+            <select formControlName="type" class="form-control">
+              @for (t of typeOptions; track t) { <option [value]="t">{{ t | titlecase }}</option> }
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select formControlName="category" class="form-control">
+              @for (c of categoryOptions; track c) { <option [value]="c">{{ c | titlecase }}</option> }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Venue *</label>
+          <input formControlName="venue" class="form-control" placeholder="Event location">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Date & Time *</label>
+            <input type="datetime-local" formControlName="startDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Date & Time *</label>
+            <input type="datetime-local" formControlName="endDate" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Registration Deadline *</label>
+            <input type="datetime-local" formControlName="registrationDeadline" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Participants *</label>
+            <input type="number" formControlName="maxParticipants" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Registration Fee (₹)</label>
+            <input type="number" formControlName="registrationFee" class="form-control" min="0"
+              placeholder="0 for free">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Email *</label>
+            <input type="email" formControlName="contactEmail" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Event Image</label>
+          <div class="image-upload-container">
+            @if (imagePreviewUrl) {
+            <div class="image-preview-container">
+              <img [src]="getImageUrl(imagePreviewUrl)" class="image-preview" alt="Preview">
+              <button type="button" class="btn-remove-image" (click)="clearImage()">✕</button>
+            </div>
+            }
+            @if (!imagePreviewUrl) {
+            <div class="file-input-wrapper">
+              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onImageSelected($event)"
+                class="file-input">
+              <span class="file-input-hint">Click to upload (max 5 MB)</span>
+            </div>
+            } @else {
+            <div class="change-image-btn">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="clearImage()">Change Image</button>
+            </div>
+            }
+          </div>
+          @if (formError) { <div class="form-error">{{ formError }}</div> }
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCreate()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="isSubmitting" (click)="submitCreate()">
+        {{ isSubmitting ? 'Creating...' : 'Create Event' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════
+     EDIT EVENT MODAL
+═══════════════════════════════════════════════════════════ -->
+@if (showEditModal && selectedEvent) {
+<div class="modal-overlay" (click)="closeEdit()">
+  <div class="modal-box wide" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit Event</h3>
+      <button class="modal-close" (click)="closeEdit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="eventForm" (ngSubmit)="submitEdit()">
+        <!-- Similar form fields as create modal -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Event Title *</label>
+            <input formControlName="title" class="form-control">
+            @if (hasErr('title','required')) { <div class="form-error">Title is required</div> }
+          </div>
+          <div class="form-group">
+            <label class="form-label">Organizer *</label>
+            <input formControlName="organizer" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea formControlName="description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Type *</label>
+            <select formControlName="type" class="form-control">
+              @for (t of typeOptions; track t) { <option [value]="t">{{ t | titlecase }}</option> }
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select formControlName="category" class="form-control">
+              @for (c of categoryOptions; track c) { <option [value]="c">{{ c | titlecase }}</option> }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Venue *</label>
+          <input formControlName="venue" class="form-control">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Date & Time *</label>
+            <input type="datetime-local" formControlName="startDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Date & Time *</label>
+            <input type="datetime-local" formControlName="endDate" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Registration Deadline *</label>
+            <input type="datetime-local" formControlName="registrationDeadline" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Participants *</label>
+            <input type="number" formControlName="maxParticipants" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Registration Fee (₹)</label>
+            <input type="number" formControlName="registrationFee" class="form-control" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Email *</label>
+            <input type="email" formControlName="contactEmail" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Event Image</label>
+          <div class="image-upload-container">
+            @if (imagePreviewUrl) {
+            <div class="image-preview-container">
+              <img [src]="getImageUrl(imagePreviewUrl)" class="image-preview" alt="Preview">
+              <button type="button" class="btn-remove-image" (click)="clearImage()" title="Remove image">✕</button>
+            </div>
+            <div class="change-image-btn">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="clearImage()">Change Image</button>
+            </div>
+            }
+            @if (!imagePreviewUrl) {
+            <div class="file-input-wrapper">
+              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onImageSelected($event)"
+                class="file-input">
+              <span class="file-input-hint">Click to upload new image (max 5 MB)</span>
+              <small class="form-hint">Leave blank to keep the existing image.</small>
+            </div>
+            }
+          </div>
+          @if (formError) { <div class="form-error">{{ formError }}</div> }
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeEdit()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="isSubmitting" (click)="submitEdit()">
+        {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════
+     FEEDBACK MODAL - Admin views student feedback
+═══════════════════════════════════════════════════════════ -->
+@if (showFeedbackModal) {
+<div class="modal-overlay" (click)="closeFeedback()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Feedback — {{ selectedEventName }}</h3>
+      <button class="modal-close" (click)="closeFeedback()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Average Rating Display -->
+      <div class="feedback-summary">
+        <div class="feedback-avg">
+          <span class="avg-number">{{ averageRating | number:'1.1-1' }}</span>
+          <span class="avg-stars">{{ getStars(averageRating) }}</span>
+          <span class="avg-label">{{ selectedEventFeedback.length }} review(s)</span>
+        </div>
+      </div>
+
+      <!-- Feedback Filter Chips -->
+      @if (selectedEventFeedback.length > 0) {
+      <div class="feedback-filter-chips">
+        <button class="fb-chip" [class.active]="feedbackFilter === 'all'"
+          (click)="setFeedbackFilter('all')">All</button>
+        <button class="fb-chip" [class.active]="feedbackFilter === 'positive'"
+          (click)="setFeedbackFilter('positive')">Positive (4-5&#9733;)</button>
+        <button class="fb-chip" [class.active]="feedbackFilter === 'neutral'"
+          (click)="setFeedbackFilter('neutral')">&#128528; Neutral (3&#9733;)</button>
+        <button class="fb-chip" [class.active]="feedbackFilter === 'negative'"
+          (click)="setFeedbackFilter('negative')">&#128078; Negative (1-2&#9733;)</button>
+        <button class="fb-chip" [class.active]="feedbackFilter === 'recent'"
+          (click)="setFeedbackFilter('recent')">Most Recent</button>
+      </div>
+      <p class="fb-count">Showing {{ filteredFeedback.length }} of {{ selectedEventFeedback.length }} review(s)</p>
+      }
+
+      @if (selectedEventFeedback.length === 0) {
+      <div class="empty-state">
+        <p>No feedback yet for this event.</p>
+      </div>
+      }
+
+      <!-- Individual Feedback List (filtered) -->
+      @for (fb of filteredFeedback; track $index) {
+      <div class="feedback-item">
+        <div class="feedback-author">
+          <div class="fb-avatar">{{ (fb.fullName || 'S').charAt(0) }}</div>
+          <div>
+            <div class="fb-name">{{ fb.fullName || 'Anonymous' }}</div>
+            @if(fb.college){<div class="fb-college">{{ fb.college }}</div>}
+          </div>
+          <div class="fb-rating-badge" [class.positive]="fb.rating >= 4" [class.neutral]="fb.rating === 3"
+            [class.negative]="fb.rating <= 2">
+            {{ fb.rating }}&#9733;
+          </div>
+        </div>
+        <div class="feedback-stars">{{ getStars(fb.rating) }}</div>
+        <p class="feedback-comment">"{{ fb.comment || 'Great event!' }}"</p>
+        <small class="feedback-date">{{ formatDate(fb.createdAt) }}</small>
+      </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeFeedback()">Close</button>
+    </div>
+  </div>
+</div>
+}
+
+
+<!-- ================================================================
+     DISCUSSION FORUM MODAL
+     ================================================================ -->
+@if (showForumModal && forumEvent) {
+<div class="modal-overlay forum-overlay" (click)="closeForum()">
+  <div class="modal-box forum-box" (click)="$event.stopPropagation()">
+    <div class="modal-header forum-header">
+      <div class="forum-title-wrap">
+        <!-- <span class="forum-icon">&#128172;</span> -->
+        <div>
+          <h3>Discussion Forum</h3>
+          <p class="forum-subtitle">{{ forumEvent.title }}</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="closeForum()">&#10005;</button>
+    </div>
+
+    <div class="modal-body forum-body">
+      <!-- Moderator Banner -->
+      <div class="moderator-banner">
+        <span> You are the Forum Moderator — your posts appear pinned at the top</span>
+      </div>
+
+      <!-- Sort / Filter Chips -->
+      <div class="forum-filter-row">
+        <span class="filter-label">Sort:</span>
+        <button class="forum-chip" [class.active]="forumCommentFilter === 'pinned-first'"
+          (click)="setForumFilter('pinned-first')">Admin First</button>
+        <button class="forum-chip" [class.active]="forumCommentFilter === 'most-recent'"
+          (click)="setForumFilter('most-recent')">Most Recent</button>
+        <button class="forum-chip" [class.active]="forumCommentFilter === 'most-upvoted'"
+          (click)="setForumFilter('most-upvoted')">Most Upvoted</button>
+      </div>
+
+      <!-- Compose Box -->
+      <div class="forum-compose">
+        <div class="compose-avatar admin-avatar">{{ getForumUserInitial() }}</div>
+        <div class="compose-area">
+          <textarea class="compose-input" [(ngModel)]="newCommentText"
+            placeholder="Post an announcement or message to all participants..." rows="2"
+            (keydown.enter)="$event.preventDefault(); submitForumComment()"></textarea>
+          <div class="compose-actions">
+            <span class="compose-hint">&#9166; Enter to post</span>
+            <button class="btn-post" (click)="submitForumComment()"
+              [disabled]="postingComment || !newCommentText.trim()">
+              @if (postingComment) { Posting... } @else { &#128228; Post }
+            </button>
+          </div>
+        </div>
+      </div>
+
+      @if (forumError) {
+      <div class="forum-error">{{ forumError }}</div>
+      }
+
+      <!-- Comments List -->
+      @if (forumLoading) {
+      <div class="forum-loading">Loading comments...</div>
+      } @else if (forumComments.length === 0) {
+      <div class="forum-empty">
+        <p>&#128172; No messages yet. Be the first to post!</p>
+      </div>
+      } @else {
+      <div class="forum-comments-list">
+        @for (cm of forumComments; track cm._id) {
+        <div class="forum-comment" [class.pinned]="cm.isPinned" [class.admin-comment]="cm.isAdmin">
+          @if (cm.isPinned) {
+          <div class="pinned-badge">Moderator</div>
+          }
+          <div class="comment-header">
+            <div class="comment-avatar" [class.admin-av]="cm.isAdmin">
+              {{ (cm.fullName || 'U').charAt(0) }}
+            </div>
+            <div class="comment-meta">
+              <span class="comment-name">{{ cm.fullName }}</span>
+              @if (cm.isAdmin) { <span class="admin-tag"> Moderator</span> }
+              @if (cm.college && !cm.isAdmin) { <span class="comment-college">{{ cm.college }}</span> }
+              <span class="comment-time">{{ formatForumTime(cm.createdAt) }}</span>
+            </div>
+            <button class="comment-delete" title="Delete" (click)="deleteForumComment(cm._id)">Delete</button>
+          </div>
+          <p class="comment-text">{{ cm.text }}</p>
+          <div class="comment-footer">
+            <button class="upvote-btn" (click)="upvoteForumComment(cm)">
+            ❤  {{ cm.upvotes }}
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <span class="forum-total">{{ forumComments.length }} message(s)</span>
+      <button class="btn btn-secondary" (click)="closeForum()">Close</button>
+    </div>
+  </div>
+</div>
+}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PARTICIPANTS MODAL
+═══════════════════════════════════════════════════════════ -->
+@if (showParticipantsModal) {
+<div class="modal-overlay" (click)="closeParticipants()">
+  <div class="modal-box wide" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Participants — {{ selectedEventName }}</h3>
+      <button class="modal-close" (click)="closeParticipants()">✕</button>
+    </div>
+    <div class="modal-body">
+      @if (participants.length > 0) {
+      <div class="bulk-actions-bar">
+        <div class="selection-info">{{ selectedParticipantIds.size }} selected</div>
+        <div class="bulk-buttons">
+          <button class="btn-bulk approve" [disabled]="selectedParticipantIds.size === 0" (click)="bulkApprove()">✅
+            Approve Selected</button>
+          <button class="btn-bulk reject" [disabled]="selectedParticipantIds.size === 0"
+            (click)="openBulkRejectModal()">❌ Reject Selected</button>
+        </div>
+      </div>
+      }
+
+      @if (bulkActionStatus === 'success') {
+      <div class="alert-success-bar">✅ {{ bulkActionMessage }}</div>
+      }
+      @if (bulkActionStatus === 'error') {
+      <div class="alert-error-bar">❌ {{ bulkActionMessage }}</div>
+      }
+
+      @if (loadingParticipants) {
+      <div class="loading-spinner">Loading participants...</div>
+      } @else if (participants.length === 0) {
+      <div class="empty-state">
+        <p>No registrations yet.</p>
+      </div>
+      } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()"></th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>College</th>
+              <th>Slot</th>
+              <th>Approval</th>
+              <th>Attendance</th>
+              <th>Reg. Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of participants; track p.registrationId) {
+            <tr [class.selected]="selectedParticipantIds.has(p.registrationId)">
+              <td><input type="checkbox" [checked]="selectedParticipantIds.has(p.registrationId)"
+                  (change)="toggleParticipantSelection(p.registrationId)"></td>
+              <td><strong>{{ p.fullName }}</strong></td>
+              <td>{{ p.email }}</td>
+              <td>{{ p.college || '—' }}</td>
+              <td><span class="slot-badge">{{ p.selectedSlot || '—' }}</span></td>
+              <td>
+                <span class="status-pill-mini" [ngClass]="p.approvalStatus">
+                  @if (p.approvalStatus === 'approved') { ✅ Approved }
+                  @else if (p.approvalStatus === 'rejected') { ❌ Rejected }
+                  @else { ⏳ Pending }
+                </span>
+                @if (p.approvalStatus === 'rejected' && p.rejectionReason) {
+                <div class="rejection-note">{{ p.rejectionReason }}</div>
+                }
+              </td>
+              <td>
+                <span class="attendance-pill" [class.present]="p.attendanceStatus === 'present'"
+                  (click)="p.attendanceStatus !== 'present' && markAsPresent(p.registrationId)"
+                  [style.cursor]="p.attendanceStatus !== 'present' ? 'pointer' : 'default'"
+                  [title]="p.attendanceStatus !== 'present' ? 'Click to mark as present' : ''">
+                  {{ p.attendanceStatus === 'present' ? '✅ Present' : '⚪ Absent' }}
+                </span>
+                @if (p.checkedInAt) {
+                  <div class="checkin-time">{{ p.checkedInAt | date:'shortTime' }}</div>
+                }
+              </td>
+              <td>
+                <div class="reg-time-cell">{{ formatDateTime(p.registeredAt) }}</div>
+              </td>
+              <td class="actions-cell">
+                @if (p.approvalStatus !== 'approved') {
+                <button class="btn-action approve-btn" (click)="approveRegistration(p.registrationId)"
+                  title="Approve">✅</button>
+                }
+                @if (p.approvalStatus !== 'rejected') {
+                <button class="btn-action reject-btn" (click)="openRejectModal(p.registrationId)"
+                  title="Reject">❌</button>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeParticipants()">Close</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ══ REJECT REASON MODAL ══ -->
+@if (showRejectModal) {
+<div class="modal-overlay" (click)="closeRejectModal()">
+  <div class="modal-box small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>❌ Reject Registration</h3>
+      <button class="modal-close" (click)="closeRejectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:12px;color:#666;">Provide a reason for rejection (optional but recommended):</p>
+      <textarea class="reject-textarea" [(ngModel)]="rejectReason"
+        placeholder="e.g. Capacity full, eligibility criteria not met..." rows="4"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeRejectModal()">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmReject()">Confirm Reject</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ══ BULK REJECT MODAL ══ -->
+@if (showBulkRejectModal) {
+<div class="modal-overlay" (click)="closeBulkRejectModal()">
+  <div class="modal-box small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>❌ Bulk Reject ({{ selectedParticipantIds.size }} selected)</h3>
+      <button class="modal-close" (click)="closeBulkRejectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:12px;color:#666;">Rejection reason (optional):</p>
+      <textarea class="reject-textarea" [(ngModel)]="bulkRejectReason" placeholder="Reason for rejection..."
+        rows="3"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeBulkRejectModal()">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmBulkReject()">Reject All Selected</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ══ PROFILE MODAL ══ -->
+@if (showProfileModal) {
+<div class="modal-overlay" (click)="closeProfileModal()">
+  <div class="modal-box small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👤 Admin Profile</h3>
+      <button class="modal-close" (click)="closeProfileModal()">✕</button>
+    </div>
+    <div class="modal-body profile-modal-content">
+      <div class="admin-profile-avatar">{{ getInitial() }}</div>
+      <h2>{{ getFullName() }}</h2>
+      <span class="admin-role-chip">{{ getRole() | titlecase }}</span>
+      <div class="admin-profile-details">
+        <div class="admin-detail-row"><label>📧 Email</label><span>{{ getEmail() }}</span></div>
+        <div class="admin-detail-row"><label>🏫 College</label><span>{{ getCollege() }}</span></div>
+        <div class="admin-detail-row"><label>🎭 Role</label><span>{{ getRole() }}</span></div>
+        <div class="admin-detail-row"><label>📅 Total Events</label><span>{{ totalEvents }}</span></div>
+        <div class="admin-detail-row"><label>👥 Total Registrations</label><span>{{ totalRegistrations }}</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeProfileModal()">Close</button>
+    </div>
+  </div>
+</div>
+}

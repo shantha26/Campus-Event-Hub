@@ -1,0 +1,66 @@
+Connecting to MongoDB...
+Connected!
+
+--- USERS (34) ---
+ID: 69ac03ae6bfdf993f6e5d0a7 | Email: student1@gmail.com | Role: student | Name: student
+ID: 69ac04096bfdf993f6e5d0ad | Email: shalini1@gmail.com | Role: student | Name: shalini
+ID: 69ac182a1d5d6ab159a8eb63 | Email: SampleAdmin@gmail.com | Role: college-admin | Name: SampleAdmin
+ID: 69adc1eda075a3724783a968 | Email: TestStudent@clg.edu.in | Role: student | Name: TestStudent
+ID: 69add284450b69526c974ba8 | Email: SuperAdmin@gmail.com | Role: superadmin | Name: SuperAdmin
+ID: 69af2bce44ff8c96f311e281 | Email: mahi@gmail.com | Role: college-admin | Name: mahi
+ID: 69af2d2644ff8c96f311e286 | Email: mohan@gmail.com | Role: student | Name: mohan
+ID: 69af371758b4c0751b9dd1b3 | Email: monish@gmail.com | Role: student | Name: monish
+ID: 69af376058b4c0751b9dd1ba | Email: mani@gmail.com | Role: college-admin | Name: mani
+ID: 69afe16ef7da88f15637d66d | Email: shalini@gmail.com | Role: student | Name: shalini
+ID: 69afe2d6f7da88f15637d677 | Email: sandhiya@gmail.com | Role: college-admin | Name: sandhiya
+ID: 69b1343af30f80f69efcfee5 | Email: shalu@gmail.com | Role: superadmin | Name: shalu
+ID: 69b1a344e93396a67ce3ce77 | Email: teststudent1@abc.com | Role: student | Name: Student
+ID: 69b1b32e3337615c5f844bda | Email: gopal@gmail.com | Role: superadmin | Name: Gopal
+ID: 69b1c63ab6edd072f46f12a7 | Email: madhu@gmail.com | Role: superadmin | Name: madhu
+ID: 69b32cc7a5130e1e92159f71 | Email: test@example.com | Role: student | Name: Test User
+ID: 69b33cb8ddd123938dd18756 | Email: apitest1773354168537@test.com | Role: student | Name: API Test User
+ID: 69b33d94ddd123938dd1875a | Email: student1773354388380@test.com | Role: student | Name: Test Student
+ID: 69b2a050c76a9d024222404c | Email: tester@test.com | Role: student | Name: Tester
+ID: 69b2a3b468da81d05f56b4d3 | Email: sri@gmail.com | Role: student | Name: sri
+ID: 69b49c7a59213b12289a870c | Email: debug1773444218588@test.com | Role: student | Name: Debug User
+ID: 69b49cce59213b12289a8710 | Email: testuser1773444302817@example.com | Role: student | Name: Test User
+ID: 69b49d2059213b12289a8714 | Email: student1773444383948@college.edu | Role: student | Name: Test Student
+ID: 69b4b699e4df6c5e96ae2509 | Email: riyaa123@students.edu | Role: student | Name: Riya P
+ID: 69b4cdf4e4df6c5e96ae252b | Email: rahul12@college.edu | Role: college-admin | Name: Rahul Sharma
+ID: 69b4d31de4df6c5e96ae254d | Email: alice55@super.edu | Role: superadmin | Name: Alice Brown
+ID: 69b52566791a409fbb8a8e85 | Email: teststudent@clg.edu.in | Role: student | Name: TestStudent
+ID: 69b9465b516584846cee9562 | Email: vignesh@gmail.com | Role: student | Name: vignesh
+ID: 69b94694516584846cee9579 | Email: sathish@gmail.com | Role: college-admin | Name: sathish
+ID: 69b989067950c58314c43d14 | Email: sampleadmin@gmail.com | Role: college-admin | Name: SampleAdmin
+ID: 69b9896b7950c58314c43d2a | Email: superadmin@gmail.com | Role: superadmin | Name: SuperAdmin
+ID: 69baee819ee3de138d67e95f | Email: suzy77@super.edu | Role: superadmin | Name: Suzy Dsouza
+ID: 69bc769494ee2b2314bc2b06 | Email: tasmiyaj@super.com | Role: superadmin | Name: Tasmiya J
+ID: 69bdd95d500ebf3aaf6f7343 | Email: priyap103@college.edu | Role: college-admin | Name: Priya Patil
+
+--- EVENTS (26) ---
+ID: 69a5b8113baf6df4cff1d879 | Title: Tech Innovation Summit 2026 | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69a5b8113baf6df4cff1d87a | Title: Campus Cultural Fest | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69a5c7c76f89ae2b89a4f1e2 | Title: Tech Innovation Summit 2026 (Copy) | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69a9b8eea463e7689c58e69b | Title: Hackathon | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69aad5d8fe5984bb32f8b7c3 | Title: AI Agents | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69ae9b1bcdac02ecd94cff80 | Title: LLM Workshop | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69af457018e06f29b4502cde | Title: AI Workshop | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b1308bf30f80f69efcfed8 | Title: Harmony Cultural Fest | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b1caddb6edd072f46f12e8 | Title: Sports day  | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b27f4915da6b0513e77570 | Title: Krivas | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b2afe0ef9958fc827cbd7d | Title: paper presentation | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b2bc29504ec41db479f846 | Title: aptithon | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b2f41f30cce76ec3b1bfdf | Title: Sparkathon | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b4d109e4df6c5e96ae2534 | Title: MetaCode | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69b946f4516584846cee9592 | Title: aptithon | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69baad915c01fdf4c8a2fafe | Title: Paper Presentation | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69bc62ba99cc74dc56d69cce | Title: Hackathon | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69bc963ebc5ceb811c3ba14a | Title: Quiz Competition | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69bcf6177c85e897e370af0f | Title: Idea Pitching | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69bdda8c500ebf3aaf6f7357 | Title: Career fair | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69be0cd156188f308d4ebc35 | Title: Ted Talks | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69c0499d9ed7e25df711ee87 | Title: Design Thinking | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69c10d46f42b0424e107ee6e | Title: Welcome Event (Click Me!) | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69c1e851d83b5109c89ae03b | Title: Idea Pitching | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69c13cf18d0b85c778201f35 | Title: Cricket | CreatedBy: 69ac182a1d5d6ab159a8eb63
+ID: 69c27d0ae8630ee41975ab00 | Title: code sprint | CreatedBy: 69ac182a1d5d6ab159a8eb63

@@ -1,0 +1,71 @@
+<div class="scan-container">
+  <div class="scan-card glass">
+    <header class="scan-header">
+      <button class="btn-back" (click)="goBack()">← Dashboard</button>
+      <h2>🎟️ QR Ticket Scanner</h2>
+      <p>Scan or enter Registration ID to verify attendance</p>
+    </header>
+
+    <div class="scan-body">
+      <div class="input-group">
+        <label for="qrData">Manual Entry / Paste QR Data</label>
+        <textarea 
+          id="qrData" 
+          [(ngModel)]="scanInput" 
+          placeholder="Paste ID or QR JSON here..."
+          [disabled]="loading"
+          (keyup.enter)="processScan()"
+        ></textarea>
+      </div>
+
+      <button 
+        class="btn-verify" 
+        [disabled]="loading || !scanInput.trim()"
+        (click)="processScan()"
+      >
+        {{ loading ? 'Verifying...' : 'Verify & Check-in' }}
+      </button>
+
+      <div class="result-area" *ngIf="result || error">
+        <!-- Success State -->
+        <div class="result-box success" *ngIf="result">
+          <div class="result-icon">✅</div>
+          <div class="result-info">
+            <h3>Check-in Successful!</h3>
+            <p><strong>Student ID:</strong> {{ result.registration.id }}</p>
+            <p><strong>Status:</strong> Present</p>
+            <p><strong>Time:</strong> {{ result.registration.checkedInAt | date:'medium' }}</p>
+          </div>
+          <button class="btn-clear" (click)="clearResult()">Next Scan</button>
+        </div>
+
+        <!-- Error State -->
+        <div class="result-box error" *ngIf="error">
+          <div class="result-icon">⚠️</div>
+          <div class="result-info">
+            <h3>Verification Failed</h3>
+            <p>{{ error }}</p>
+          </div>
+          <button class="btn-clear" (click)="clearResult()">Try Again</button>
+        </div>
+      </div>
+    </div>
+
+      <div class="recent-scans" *ngIf="recentCheckIns.length > 0">
+        <h3>📋 Recent Check-ins</h3>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let item of recentCheckIns">
+            <div class="ri-info">
+              <span class="ri-name">{{ item.studentName }}</span>
+              <span class="ri-id">ID: {{ item.id }}</span>
+            </div>
+            <span class="ri-time">{{ item.time | date:'shortTime' }}</span>
+          </div>
+        </div>
+      </div>
+
+    <footer class="scan-footer">
+      <p>Note: This scanner marks the registration as <strong>Present</strong> in the database.</p>
+    </footer>
+  </div>
+</div>
